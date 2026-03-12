@@ -6,7 +6,7 @@ Parsea el Excel de encuestas (3 pestañas) y retorna la estructura de datos.
 import openpyxl
 from io import BytesIO
 from typing import List, Tuple, Dict, Optional
-from .models import Answer, Question, SegmentGroup, ParseResult, DEFAULT_PALETTE
+from .models import Answer, Question, SegmentGroup, ParseResult, DEFAULT_PALETTE, PREDEFINED_COLORS
 
 
 def parse_excel(file_bytes: bytes) -> ParseResult:
@@ -60,13 +60,29 @@ def parse_excel(file_bytes: bytes) -> ParseResult:
 
             seg_vals = [_safe_float(ws.cell(row, c).value) for c, _ in segment_cols]
 
-            # Resolver color
-            color = meta_colores.get(label)
-            color_pending = color is None
+            # Resolver color: 1) PREDEFINED_COLORS (Ágora), 2) meta_respuestas, 3) DEFAULT_PALETTE
+            color = None
+            color_pending = False
+
+            # 1) Buscar en predefinidos Ágora (case-insensitive, máxima prioridad)
+            color = PREDEFINED_COLORS.get(label)
+            if color is None:
+                label_lower = label.lower().strip()
+                for pred_label, pred_color in PREDEFINED_COLORS.items():
+                    if pred_label.lower().strip() == label_lower:
+                        color = pred_color
+                        break
+
+            # 2) Si no hay predefinido, buscar en meta_respuestas del Excel
+            if color is None:
+                color = meta_colores.get(label)
+
+            # 3) Si no hay nada, asignar de la paleta categórica
             if color is None:
                 color = DEFAULT_PALETTE[palette_idx % len(DEFAULT_PALETTE)]
                 palette_idx += 1
                 color_auto_count += 1
+                color_pending = True
 
             respuestas.append(Answer(
                 label=label,

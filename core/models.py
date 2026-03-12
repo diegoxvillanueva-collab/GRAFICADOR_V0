@@ -7,12 +7,61 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 
-# Paleta por defecto para asignar colores cuando faltan en meta_respuestas
+# ──────────────────────────────────────────────────────────────────────────────
+# COLORES PREDEFINIDOS ÁGORA
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Mapa de colores por label de respuesta conocida (case-insensitive lookup)
+# Cuando un label coincide, se usa este color en vez del de meta_respuestas o auto-asignado
+PREDEFINED_COLORS = {
+    # Escala imagen / gestión
+    "Muy buena": "#04967A",
+    "Buena": "#03BD85",
+    "Mala": "#EA3F28",
+    "Muy mala": "#C1273A",
+    "No sabe": "#BFBFBF",
+    # Cercanía partidaria
+    "Un candidato del peronismo cercano al kirchnerismo": "#0070C0",
+    "Un candidato de La Libertad Avanza de Javier Milei": "#7030A0",
+    "Un candidato del peronismo No kirchnerista": "#007F48",
+    "Un candidato de la izquierda": "#FF008E",
+    "Un candidato del PRO de Mauricio Macri": "#FFC000",
+    "Un candidato del radicalismo": "#C1273A",
+    "Otro": "#A6A6A6",
+    # Escala intensidad
+    "Mucho": "#023D9B",
+    "Bastante": "#1D73FC",
+    "Poco": "#FF008E",
+    "Nada": "#C1273A",
+    # Escala probabilidad
+    "Muy probable": "#023D9B",
+    "Bastante probable": "#1D73FC",
+    "Poco probable": "#FF008E",
+    "Nunca lo votaría": "#C1273A",
+    # Escala continuidad
+    "Continuar como hasta ahora": "#023D9B",
+    "Continuar con algunos cambios": "#1D73FC",
+    "Cambiar manteniendo solo algunas cosas": "#FF008E",
+    "Cambiar totalmente": "#C1273A",
+    # Sí / No
+    "Si": "#023D9B",
+    "Sí": "#023D9B",
+    "No": "#E85833",
+    # Clase social
+    "Clase baja": "#000000",
+    "Clase media baja": "#023D9B",
+    "Clase media": "#1D73FC",
+    "Clase media alta": "#E85833",
+    "Clase alta": "#C1273A",
+}
+
+# Paleta para variables categóricas nominales (cuando no hay match en PREDEFINED_COLORS)
 DEFAULT_PALETTE = [
+    "#000000", "#023D9B", "#1D73FC", "#FF008E", "#7030A0",
+    "#AF1956", "#E85833", "#007F48", "#02BFA3",
+    # Extensión por si hay más de 9 categorías
     "#4E79A7", "#F28E2B", "#E15759", "#76B7B2", "#59A14F",
     "#EDC948", "#B07AA1", "#FF9DA7", "#9C755F", "#BAB0AC",
-    "#86BCB6", "#8CD17D", "#B6992D", "#499894", "#E15759",
-    "#F1CE63", "#D37295", "#A0CBE8", "#FFBE7D", "#8CD17D",
 ]
 
 # ──────────────────────────────────────────────────────────────────────────────
