@@ -37,6 +37,37 @@ def _fix_xml_decl(raw: bytes) -> bytes:
     return raw
 
 
+MC = "http://schemas.openxmlformats.org/markup-compatibility/2006"
+
+
+def clean_chart_xml(chart_xml_bytes: bytes) -> bytes:
+    """
+    Limpia un chart XML eliminando elementos problemáticos del template
+    que causan que PowerPoint pida reparar el archivo.
+    Se usa para TODOS los charts, incluso los que no reciben inject_chart_data.
+    """
+    parser = etree.XMLParser(remove_blank_text=False)
+    root = etree.fromstring(chart_xml_bytes, parser)
+
+    # Eliminar elementos con r:id refs a partes que no copiamos
+    for tag in ("c:externalData", "c:clrMapOvr", "c:printSettings", "c:userShapes"):
+        el = root.find(tag, NS)
+        if el is not None:
+            root.remove(el)
+
+    # Eliminar mc:AlternateContent (extensiones de versiones nuevas de Office)
+    for mc in root.findall(f"{{{MC}}}AlternateContent"):
+        root.remove(mc)
+
+    # Limpiar atributo Ignorable del root
+    ignorable_attr = f"{{{MC}}}Ignorable"
+    if root.get(ignorable_attr) is not None:
+        del root.attrib[ignorable_attr]
+
+    raw = etree.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)
+    return _fix_xml_decl(raw)
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # BUILDING BLOCKS — Formato Ágora
 # ──────────────────────────────────────────────────────────────────────────────
@@ -530,14 +561,9 @@ def inject_chart_data(chart_xml_bytes: bytes, chart_type: str,
     if title:
         _inject_chart_title(root, title, chart_type)
 
-    # Eliminar elementos que referencian archivos del template que no copiamos
-    for tag in ("c:externalData", "c:clrMapOvr", "c:printSettings"):
-        el = root.find(tag, NS)
-        if el is not None:
-            root.remove(el)
-
+    # Limpiar elementos problemáticos del template (reutiliza clean_chart_xml)
     raw = etree.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)
-    return _fix_xml_decl(raw)
+    return clean_chart_xml(_fix_xml_decl(raw))
 
 
 def _inject_chart_title(root, title: str, chart_type: str = "FREC_MULTIPLE"):

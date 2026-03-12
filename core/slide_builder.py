@@ -16,7 +16,7 @@ from pptx.opc.package import Part
 from pptx.opc.packuri import PackURI
 
 from .models import Question, ParseResult, AGORA_STYLE
-from .chart_injector import inject_chart_data
+from .chart_injector import inject_chart_data, clean_chart_xml
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -350,6 +350,11 @@ def build_pptx(template_bytes: bytes, questions: List[Question],
         rId = sldId.get(qn('r:id'))
         prs.part.drop_rel(rId)
         xml_slides.remove(sldId)
+
+    # Limpiar XML de TODOS los chart parts (elimina r:id huérfanos, mc:AlternateContent)
+    for _, _, chart_parts in new_slides:
+        for part in chart_parts.values():
+            part._blob = clean_chart_xml(part.blob)
 
     # Ahora procesar cada slide: limpiar, inyectar datos, título, footer
     for new_slide, spec, chart_parts in new_slides:
