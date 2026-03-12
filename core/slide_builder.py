@@ -6,7 +6,6 @@ Opera directamente sobre el ZIP en memoria (sin win32com — corre en Linux/Rail
 
 import zipfile
 import zlib
-import struct
 import re
 from io import BytesIO
 from copy import deepcopy
@@ -226,19 +225,19 @@ class PptxBuilder:
         self.slide_ids = []  # (slide_path, rId) tuples for presentation.xml
 
         # Cargar todos los archivos del template base
-        # El template puede tener archivos con CRC error (e.g., image4.jpeg)
+        # Archivos con CRC error (e.g., image4.jpeg corrupto) se descartan
         self._template_raw = BytesIO(template_bytes)
+        self._skipped_files = set()
         for info in self.template_zip.infolist():
             try:
                 self.files[info.filename] = self.template_zip.read(info.filename)
             except (zipfile.BadZipFile, KeyError, zlib.error):
-                # CRC error — extraer raw bytes directamente del ZIP
-                try:
-                    data = self._extract_raw(info)
-                    if data:
-                        self.files[info.filename] = data
-                except Exception:
-                    pass
+                # CRC error — descartar archivo corrupto
+                self._skipped_files.add(info.filename)
+
+        # Limpiar rels que referencian archivos descartados
+        if self._skipped_files:
+            self._clean_orphan_rels()
 
         # Parsear presentation.xml para obtener el último slide ID
         pres_xml = etree.fromstring(self.files["ppt/presentation.xml"])
@@ -853,13 +852,15 @@ class PptxBuilder:
         """Actualiza [Content_Types].xml — solo registra archivos que realmente existen."""
         ct = etree.fromstring(self.files["[Content_Types].xml"])
 
-        # Remover TODOS los overrides de slides, charts, styles y colors
+        # Remover overrides de slides/charts (se recrean) y archivos descartados
         to_remove = []
         for override in ct.findall(f"{{{NS_CT}}}Override"):
-            part = override.get("PartName", "")
-            if re.match(r"/ppt/slides/slide\d+\.xml", part):
+            part = override.get("PartName", "").lstrip("/")
+            if re.match(r"ppt/slides/slide\d+\.xml", part):
                 to_remove.append(override)
-            elif re.match(r"/ppt/charts/(chart|style|colors)\d+\.xml", part):
+            elif re.match(r"ppt/charts/(chart|style|colors)\d+\.xml", part):
+                to_remove.append(override)
+            elif part in self._skipped_files:
                 to_remove.append(override)
         for el in to_remove:
             ct.remove(el)
@@ -886,18 +887,27 @@ class PptxBuilder:
 
         self.files["[Content_Types].xml"] = _serialize_xml(ct)
 
-    def _extract_raw(self, info: zipfile.ZipInfo) -> Optional[bytes]:
-        """Extrae un archivo del ZIP raw, bypassing CRC check."""
-        import struct
-        self._template_raw.seek(info.header_offset)
-        header = self._template_raw.read(30)
-        fname_len = struct.unpack('<H', header[26:28])[0]
-        extra_len = struct.unpack('<H', header[28:30])[0]
-        self._template_raw.read(fname_len + extra_len)
-        raw_data = self._template_raw.read(info.compress_size)
-        if info.compress_type == 8:  # deflated
-            return zlib.decompress(raw_data, -15)
-        return raw_data  # stored
+    def _clean_orphan_rels(self):
+        """Elimina de los .rels las referencias a archivos que fueron descartados (CRC error)."""
+        # Construir set de targets descartados (nombres relativos como los usan los .rels)
+        skipped_basenames = set()
+        for f in self._skipped_files:
+            # e.g. "ppt/media/image4.jpeg" -> "image4.jpeg"
+            skipped_basenames.add(f.split("/")[-1])
+
+        for path in list(self.files.keys()):
+            if not path.endswith(".rels"):
+                continue
+            root = etree.fromstring(self.files[path])
+            changed = False
+            for rel in root.findall(f"{{{NS_RELS}}}Relationship"):
+                target = rel.get("Target", "")
+                target_base = target.split("/")[-1]
+                if target_base in skipped_basenames:
+                    root.remove(rel)
+                    changed = True
+            if changed:
+                self.files[path] = _serialize_xml(root)
 
     def _package(self) -> bytes:
         """Empaqueta todos los archivos como PPTX (ZIP)."""
