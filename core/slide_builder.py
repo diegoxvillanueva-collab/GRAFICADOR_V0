@@ -342,10 +342,13 @@ def build_pptx(template_bytes: bytes, questions: List[Question],
         new_slide, chart_parts = _duplicate_slide(prs, src_slide)
         new_slides.append((new_slide, spec, chart_parts))
 
-    # Eliminar las slides originales del template
+    # Eliminar las slides originales del template (con drop_rel para limpiar parts)
+    from pptx.oxml.ns import qn
     xml_slides = prs.slides._sldIdLst
     original_ids = list(xml_slides)[:len(template_slides)]
     for sldId in original_ids:
+        rId = sldId.get(qn('r:id'))
+        prs.part.drop_rel(rId)
         xml_slides.remove(sldId)
 
     # Ahora procesar cada slide: limpiar, inyectar datos, título, footer
