@@ -530,6 +530,12 @@ def inject_chart_data(chart_xml_bytes: bytes, chart_type: str,
     if title:
         _inject_chart_title(root, title, chart_type)
 
+    # Eliminar elementos que referencian archivos del template que no copiamos
+    for tag in ("c:externalData", "c:clrMapOvr", "c:printSettings"):
+        el = root.find(tag, NS)
+        if el is not None:
+            root.remove(el)
+
     raw = etree.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)
     return _fix_xml_decl(raw)
 

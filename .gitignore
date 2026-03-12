@@ -5,4 +5,5 @@ __pycache__/
 venv/
 *.pptx
 *.xlsx
-!Template.pptx
+!templates/Template.pptx
+!templates/Template_clean.pptx

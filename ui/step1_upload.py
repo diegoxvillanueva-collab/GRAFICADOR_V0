@@ -9,7 +9,7 @@ from core.excel_parser import parse_excel
 
 
 # Template embebido — siempre el mismo de Ágora
-_TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "templates" / "Template.pptx"
+_TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "templates" / "Template_clean.pptx"
 
 
 def _load_template() -> bytes:
