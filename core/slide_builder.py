@@ -597,12 +597,15 @@ class PptxBuilder:
                                         first_p.remove(child)
 
                                 # Agregar un solo run con el título
+                                # Formato: HelveticaNeue Std (Cuerpo) 36pt bold
+                                from .models import AGORA_STYLE
                                 new_r = etree.SubElement(first_p, f"{{{NS_DRAW}}}r")
-                                if rPr_template is not None:
-                                    new_r.append(deepcopy(rPr_template))
-                                else:
-                                    new_rPr = etree.SubElement(new_r, f"{{{NS_DRAW}}}rPr")
-                                    new_rPr.set("lang", "es-AR")
+                                new_rPr = etree.SubElement(new_r, f"{{{NS_DRAW}}}rPr")
+                                new_rPr.set("lang", "es-AR")
+                                new_rPr.set("sz", str(AGORA_STYLE["slide_title_size"]))
+                                new_rPr.set("b", "1" if AGORA_STYLE["slide_title_bold"] else "0")
+                                latin = etree.SubElement(new_rPr, f"{{{NS_DRAW}}}latin")
+                                latin.set("typeface", AGORA_STYLE["slide_title_font"])
                                 new_t = etree.SubElement(new_r, f"{{{NS_DRAW}}}t")
                                 new_t.text = titulo
 
@@ -704,11 +707,15 @@ class PptxBuilder:
                         tag_local = child.tag.split("}")[-1] if "}" in child.tag else child.tag
                         if tag_local in ("r", "br", "fld"):
                             p.remove(child)
-                    # Agregar run con footer
+                    # Agregar run con footer — Helvetica Neue 18pt bold
+                    from .models import AGORA_STYLE
                     r = etree.SubElement(p, f"{{{NS_DRAW}}}r")
                     rPr = etree.SubElement(r, f"{{{NS_DRAW}}}rPr")
                     rPr.set("lang", "es-AR")
-                    rPr.set("sz", "1200")
+                    rPr.set("sz", str(AGORA_STYLE["footer_size"]))
+                    rPr.set("b", "1" if AGORA_STYLE["footer_bold"] else "0")
+                    latin = etree.SubElement(rPr, f"{{{NS_DRAW}}}latin")
+                    latin.set("typeface", AGORA_STYLE["footer_font"])
                     t = etree.SubElement(r, f"{{{NS_DRAW}}}t")
                     t.text = footer_text
                     break

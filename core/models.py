@@ -15,25 +15,137 @@ DEFAULT_PALETTE = [
     "#F1CE63", "#D37295", "#A0CBE8", "#FFBE7D", "#8CD17D",
 ]
 
-# Formato visual Ágora — extraído del template de referencia
+# ──────────────────────────────────────────────────────────────────────────────
+# FORMATO VISUAL ÁGORA — Especificación completa de fuentes por tipo de chart
+# Tamaños en centipuntos (pt × 100). Ej: 24pt = 2400
+# ──────────────────────────────────────────────────────────────────────────────
+
 AGORA_STYLE = {
-    "chart_title_font": "HelveticaNeueLT Std (Cuerpo)",
-    "chart_title_size": 2400,  # centipuntos (24pt)
-    "chart_title_bold": True,
-    "data_label_font": "Roboto Condensed",
-    "data_label_size": 1400,  # 14pt
-    "data_label_bold": True,
-    "data_label_color_scheme": "bg1",  # blanco sobre barra
-    "axis_label_font": "HelveticaNeue Std (Cuerpo)",
-    "axis_label_size": 1400,  # 14pt
-    "axis_label_bold": True,
-    "slide_title_font": "HelveticaNeueLT Std (Cuerpo)",
-    "slide_title_size": 3600,  # 36pt
-    "slide_title_bold": False,
+    # ── GENERAL (aplica a todas las diapositivas) ──
+    "slide_title_font": "HelveticaNeue Std (Cuerpo)",
+    "slide_title_size": 3600,       # 36pt
+    "slide_title_bold": True,       # solo el nombre del apartado (ej "02. Gestiones")
+    "footer_font": "Helvetica Neue",
+    "footer_size": 1800,            # 18pt
+    "footer_bold": True,
+
+    # ── FREC_SIMPLE ──
+    "frec_simple": {
+        "cat_axis_font": "HelveticaNeue Std (Cuerpo)",
+        "cat_axis_size": 2200,      # 22pt — eje horizontal
+        "cat_axis_bold": False,
+        "data_label_font": "HelveticaNeue Std (Cuerpo)",
+        "data_label_size": 2400,    # 24pt — % dentro del gráfico
+        "data_label_bold": True,
+        "data_label_color": "bg1",  # blanco sobre barra
+    },
+
+    # ── FREC_MULTIPLE ──
+    "frec_multiple": {
+        "chart_title_font": "HelveticaNeue Std",
+        "chart_title_size": 2400,   # 24pt
+        "chart_title_bold": True,
+        "legend_font": "HelveticaNeue Std",
+        "legend_size": 2400,        # 24pt
+        "legend_bold": False,
+        "val_axis_font": "HelveticaNeue Std",
+        "val_axis_size": 2200,      # 22pt — eje vertical
+        "val_axis_bold": True,
+        "data_label_font": "HelveticaNeue Std (Cuerpo)",
+        "data_label_size": 2000,    # 20pt — % dentro del gráfico
+        "data_label_bold": True,
+        "data_label_color": "bg1",
+    },
+
+    # ── FREC_MULTI_GRAFICOS (usa mismos specs que FREC_SIMPLE) ──
+    "frec_multi_graficos": {
+        "chart_title_font": "HelveticaNeue Std",
+        "chart_title_size": 2400,   # 24pt
+        "chart_title_bold": True,
+        "cat_axis_font": "HelveticaNeue Std (Cuerpo)",
+        "cat_axis_size": 2200,      # 22pt
+        "cat_axis_bold": False,
+        "data_label_font": "HelveticaNeue Std (Cuerpo)",
+        "data_label_size": 2400,    # 24pt
+        "data_label_bold": True,
+        "data_label_color": "bg1",
+    },
+
+    # ── APERTURA_SIMPLE ──
+    "apertura_simple": {
+        "legend_font": "HelveticaNeue Std",
+        "legend_size": 2400,        # 24pt
+        "legend_bold": False,
+        "bracket_font": "HelveticaNeue Std",
+        "bracket_size": 1800,       # 18pt — corchetes (burbujas futuras)
+        "bracket_bold": True,
+        "data_label_font": "Roboto Condensed",
+        "data_label_size": 1400,    # 14pt — % dentro del gráfico
+        "data_label_bold": True,
+        "data_label_color": "bg1",
+        "cat_axis_font": "HelveticaNeue Std (Títulos)",
+        "cat_axis_size": 1800,      # 18pt — eje horizontal
+        "cat_axis_bold": False,
+    },
+
+    # ── EVOLUTIVO1 (fase futura) ──
+    "evolutivo1": {
+        "legend_font": "HelveticaNeue Std (Cuerpo)",
+        "legend_size": 2400,        # 24pt
+        "legend_bold": False,
+        "data_label_font": "HelveticaNeue Std",
+        "data_label_size": 2000,    # 20pt
+        "data_label_bold": True,
+        "cat_axis_font": "HelveticaNeue Std",
+        "cat_axis_size": 1800,      # 18pt
+        "cat_axis_bold": False,
+    },
+
+    # ── EVOLUTIVO2 (fase futura) ──
+    "evolutivo2": {
+        "legend_font": "HelveticaNeueLT Std (Cuerpo)",
+        "legend_size": 2000,        # 20pt
+        "legend_bold": False,
+        "chart_title_font": "HelveticaNeue Std",
+        "chart_title_size": 2400,   # 24pt
+        "chart_title_bold": True,
+        "data_label_font": "HelveticaNeue Std (Cuerpo)",
+        "data_label_size": 2000,    # 20pt
+        "data_label_bold": True,
+        "cat_axis_font": "HelveticaNeue Std (Cuerpo)",
+        "cat_axis_size": 2000,      # 20pt
+        "cat_axis_bold": False,
+    },
+
+    # ── EVOLUTIVO3 (fase futura) ──
+    "evolutivo3": {
+        "data_label_font": "Roboto",
+        "data_label_size": 2400,    # 24pt
+        "data_label_bold": True,
+        "legend_font": "HelveticaNeue Std (Títulos)",
+        "legend_size": 2000,        # 20pt
+        "legend_bold": False,
+    },
+
+    # ── LAYOUT ──
     "frec_gap_width": 30,
     "apertura_gap_width": 50,
     "number_format": "0%",
 }
+
+
+def get_chart_style(chart_type: str) -> dict:
+    """Retorna el sub-dict de estilo para un tipo de chart específico."""
+    key_map = {
+        "FREC_SIMPLE": "frec_simple",
+        "FREC_MULTIPLE": "frec_multiple",
+        "FREC_MULTI_GRAFICOS": "frec_multi_graficos",
+        "APERTURA_SIMPLE": "apertura_simple",
+        "EVOLUTIVO1": "evolutivo1",
+        "EVOLUTIVO2": "evolutivo2",
+        "EVOLUTIVO3": "evolutivo3",
+    }
+    return AGORA_STYLE.get(key_map.get(chart_type, ""), {})
 
 
 @dataclass
