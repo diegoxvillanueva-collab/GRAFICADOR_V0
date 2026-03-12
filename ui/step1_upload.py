@@ -1,10 +1,20 @@
 """
 S4 Graficador — Pantalla 1: Upload
-Carga de Excel + Template + config básica.
+Carga de Excel + config básica.  El template de Ágora está embebido en el proyecto.
 """
 
 import streamlit as st
+from pathlib import Path
 from core.excel_parser import parse_excel
+
+
+# Template embebido — siempre el mismo de Ágora
+_TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "templates" / "Template.pptx"
+
+
+def _load_template() -> bytes:
+    """Carga el template de Ágora desde el proyecto."""
+    return _TEMPLATE_PATH.read_bytes()
 
 
 def render_step1():
@@ -16,16 +26,11 @@ def render_step1():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Archivos")
+        st.subheader("Archivo de datos")
         excel_file = st.file_uploader(
             "Excel de datos (.xlsx)",
             type=["xlsx"],
             help="Excel con pestañas: datos, meta_preguntas, meta_respuestas",
-        )
-        template_file = st.file_uploader(
-            "Template PPTX (.pptx)",
-            type=["pptx"],
-            help="Template de Ágora con slides de referencia",
         )
 
     with col2:
@@ -48,13 +53,13 @@ def render_step1():
 
     st.divider()
 
-    # Botón Leer Excel
-    can_proceed = excel_file is not None and template_file is not None
+    # Botón Leer Excel — solo necesita el Excel
+    can_proceed = excel_file is not None
     if st.button("Leer Excel →", disabled=not can_proceed, type="primary", use_container_width=True):
         with st.spinner("Parseando Excel..."):
             try:
                 excel_bytes = excel_file.read()
-                template_bytes = template_file.read()
+                template_bytes = _load_template()
 
                 result = parse_excel(excel_bytes)
 
